@@ -2,6 +2,7 @@ package net.nolanwires.HomeControlAndroid;
 
 import net.nolanwires.HomeControlAndroid.fragments.CoapDeviceAdapterFragment;
 import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
+import net.nolanwires.HomeControlAndroid.fragments.LgSmartTvAdapterFragment;
 import net.nolanwires.HomeControlAndroid.fragments.TcpHubAdapterFragment;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class DeviceContent {
     public static final List<DeviceAdapterFragment> ITEMS = new ArrayList<>();
 
     static {
+        addDeviceAdapter(new LgSmartTvAdapterFragment());
         addDeviceAdapter(new CoapDeviceAdapterFragment());
         addDeviceAdapter(new TcpHubAdapterFragment());
     }
