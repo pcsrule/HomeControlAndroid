@@ -3,6 +3,7 @@ package net.nolanwires.HomeControlAndroid.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +25,9 @@ public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements V
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Activity activity = this.getActivity();
-        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-        if (appBarLayout != null) {
-            appBarLayout.setTitle(ADAPTER_DETAILS);
+        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(ADAPTER_NAME);
         }
 
         mClient = new LgSmartTvClient(getContext());
@@ -39,6 +40,14 @@ public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements V
 
         v.findViewById(R.id.offButton).setOnClickListener(this);
         v.findViewById(R.id.powerSaveButton).setOnClickListener(this);
+        v.findViewById(R.id.inputButton).setOnClickListener(this);
+        v.findViewById(R.id.upButton).setOnClickListener(this);
+        v.findViewById(R.id.downButton).setOnClickListener(this);
+        v.findViewById(R.id.leftButton).setOnClickListener(this);
+        v.findViewById(R.id.rightButton).setOnClickListener(this);
+        v.findViewById(R.id.okButton).setOnClickListener(this);
+        v.findViewById(R.id.backButton).setOnClickListener(this);
+        v.findViewById(R.id.menuButton).setOnClickListener(this);
 
         return v;
     }
@@ -64,8 +73,33 @@ public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements V
             case R.id.offButton:
                 mClient.sendKeyCode(LG_KEYCODES.POWER);
                 break;
+            case R.id.inputButton:
+                mClient.sendKeyCode(LG_KEYCODES.INPUT);
+                break;
             case R.id.powerSaveButton:
                 mClient.sendChangePowerSave();
+                break;
+            case R.id.upButton:
+                mClient.sendKeyCode(LG_KEYCODES.UP);
+                break;
+            case R.id.downButton:
+                mClient.sendKeyCode(LG_KEYCODES.DOWN);
+                break;
+            case R.id.leftButton:
+                mClient.sendKeyCode(LG_KEYCODES.LEFT);
+                break;
+            case R.id.rightButton:
+                mClient.sendKeyCode(LG_KEYCODES.RIGHT);
+                break;
+            case R.id.okButton:
+                mClient.sendKeyCode(LG_KEYCODES.OK);
+                break;
+            case R.id.backButton:
+                mClient.sendKeyCode(LG_KEYCODES.BACK);
+                break;
+            case R.id.menuButton:
+                mClient.sendKeyCode(LG_KEYCODES.MENU);
+                break;
         }
     }
 }

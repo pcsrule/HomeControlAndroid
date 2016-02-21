@@ -2,7 +2,7 @@ package net.nolanwires.HomeControlAndroid.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,9 +40,9 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Activity activity = this.getActivity();
-        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-        if (appBarLayout != null) {
-            appBarLayout.setTitle(ADAPTER_DETAILS);
+        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(ADAPTER_DETAILS);
         }
 
         discoverControls();

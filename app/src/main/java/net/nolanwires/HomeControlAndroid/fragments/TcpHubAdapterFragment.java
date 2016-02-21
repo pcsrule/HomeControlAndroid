@@ -2,7 +2,8 @@ package net.nolanwires.HomeControlAndroid.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
+import android.os.Handler;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,21 +24,23 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
 
     private static final String ADAPTER_NAME = "Lighting";
     private static final String ADAPTER_DETAILS = "TCP Connected lighting";
+    private static final int POLL_DELAY_MS = 2000;
 
     private TcpConnectedLightingClient mLightingClient;
     private LightListAdapter mAdapter;
+    private Handler mHandler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Activity activity = this.getActivity();
-        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-        if (appBarLayout != null) {
-            appBarLayout.setTitle(ADAPTER_DETAILS);
+        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(ADAPTER_DETAILS);
         }
 
+        mHandler = new Handler();
         mLightingClient = new TcpConnectedLightingClient(getContext(), this);
-        mLightingClient.getLights();
     }
 
     @Override
@@ -47,6 +50,17 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
 
         mAdapter = new LightListAdapter();
         lv.setAdapter(mAdapter);
+
+        mLightingClient.getLights();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mLightingClient.getLights();
+                mHandler.postDelayed(this, POLL_DELAY_MS);
+            }
+        }, POLL_DELAY_MS);
+
+
         return lv;
     }
 

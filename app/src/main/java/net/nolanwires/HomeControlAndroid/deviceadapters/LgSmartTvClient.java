@@ -1,6 +1,7 @@
 package net.nolanwires.HomeControlAndroid.deviceadapters;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -27,8 +28,9 @@ public class LgSmartTvClient {
     private static final String TV_HOST = "projector";
     private static final String TV_PORT = "8080";
     private static final String TV_URL = "http://" + TV_HOST + ':' + TV_PORT + "/roap/api/";
-
     private static final String TAG = "LGTVCLIENT";
+
+    private static final int POLL_DELAY_MS = 200;
 
     public enum LG_KEYCODES {
         POWER(1),
@@ -47,31 +49,42 @@ public class LgSmartTvClient {
         LEFT(14),
         RIGHT(15),
         OK(20),
+        HOME_MENU(21),
+        MENU(22),
+        BACK(23),
         INPUT(47),
         ENERGY_SAVING(409);
 
         private final int keycode;
+
         LG_KEYCODES(int keycode) {
             this.keycode = keycode;
         }
-        public int getKeycode() { return keycode; }
+
+        public int getKeycode() {
+            return keycode;
+        }
     }
 
     private String mSessionId;
     private Context mContext;
+    private Handler mHandler;
     private LinkedList<LG_KEYCODES> keyQueue;
 
     /**
      * Construct API.
+     *
      * @param context Used to get Volley thread pool.
      */
     public LgSmartTvClient(Context context) {
         mContext = context;
+        mHandler = new Handler();
         keyQueue = new LinkedList<>();
     }
 
     /**
      * Send a key code to the TV.
+     *
      * @param keycode keycode to send.
      */
     public void sendKeyCode(LG_KEYCODES keycode) {
@@ -87,15 +100,17 @@ public class LgSmartTvClient {
         keyQueue.add(LG_KEYCODES.UP);
         keyQueue.add(LG_KEYCODES.UP);
         keyQueue.add(LG_KEYCODES.OK);
+        keyQueue.add(LG_KEYCODES.BACK);
+        keyQueue.add(LG_KEYCODES.BACK);
         pollKeyQueue();
     }
 
     private void pollKeyQueue() {
         final LG_KEYCODES keyCodeToSend = keyQueue.poll();
-        if(keyCodeToSend == null)
+        if (keyCodeToSend == null)
             return;
 
-        if(mSessionId != null) {
+        if (mSessionId != null) {
             final String keyCommandString = XML_VERSION_STRING +
                     "<command><session>" +
                     mSessionId +
@@ -106,12 +121,18 @@ public class LgSmartTvClient {
             LgXmlRequest keyCommandRequest = new LgXmlRequest(TV_URL + "command", keyCommandString, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    pollKeyQueue();
+
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            pollKeyQueue();
+                        }
+                    }, POLL_DELAY_MS);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    if(error.networkResponse.statusCode == 401) {
+                    if (error.networkResponse.statusCode == 401) {
                         keyQueue.addFirst(keyCodeToSend);
                         getSessionId();
                     }
@@ -121,7 +142,7 @@ public class LgSmartTvClient {
             Singleton.addRequestToQueue(mContext, keyCommandRequest);
         } else
             keyQueue.addFirst(keyCodeToSend);
-            getSessionId();
+        getSessionId();
     }
 
     private void getSessionId() {
