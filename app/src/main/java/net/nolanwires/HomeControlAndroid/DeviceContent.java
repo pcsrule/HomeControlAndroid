@@ -1,5 +1,6 @@
 package net.nolanwires.HomeControlAndroid;
 
+import net.nolanwires.HomeControlAndroid.fragments.ChromecastAdapterFragment;
 import net.nolanwires.HomeControlAndroid.fragments.CoapDeviceAdapterFragment;
 import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
 import net.nolanwires.HomeControlAndroid.fragments.LgSmartTvAdapterFragment;
@@ -22,6 +23,7 @@ public class DeviceContent {
         addDeviceAdapter(new LgSmartTvAdapterFragment());
         addDeviceAdapter(new CoapDeviceAdapterFragment());
         addDeviceAdapter(new TcpHubAdapterFragment());
+        addDeviceAdapter(new ChromecastAdapterFragment());
     }
 
     private static void addDeviceAdapter(DeviceAdapterFragment deviceAdapter) {

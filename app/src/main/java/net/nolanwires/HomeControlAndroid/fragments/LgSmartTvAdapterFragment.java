@@ -1,13 +1,12 @@
 package net.nolanwires.HomeControlAndroid.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient;
 import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient.LG_KEYCODES;
@@ -24,10 +23,9 @@ public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements V
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Activity activity = this.getActivity();
-        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
-        if (toolbar != null) {
-            toolbar.setTitle(ADAPTER_NAME);
+        ActionBar actionBar = ((DeviceDetailActivity)getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(ADAPTER_DETAILS);
         }
 
         mClient = new LgSmartTvClient(getContext());

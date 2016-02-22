@@ -152,16 +152,14 @@ public class TcpConnectedLightingClient {
                         newLight.name = XMLHelpers.getContentForTagName(lightAttributes, "name");
 
 
-                        if ((tmp = XMLHelpers.getContentForTagName(lightAttributes, "level")) != null) {
+                        if ((tmp = XMLHelpers.getContentForTagName(lightAttributes, "level")) != null)
                             newLight.brightness = Integer.valueOf(tmp);
-                        }
-                        if ((tmp = XMLHelpers.getContentForTagName(lightAttributes, "state")) != null) {
-                            newLight.isOn = tmp.equals("1");
-                        }
+                        else
+                            newLight.brightness = 0;
 
-                        if ((tmp = XMLHelpers.getContentForTagName(lightAttributes, "offline")) != null) {
-                            newLight.offline = tmp.equals("1");
-                        }
+                        newLight.isOn = (tmp = XMLHelpers.getContentForTagName(lightAttributes, "state")) != null && tmp.equals("1");
+
+                        newLight.offline = (tmp = XMLHelpers.getContentForTagName(lightAttributes, "offline")) != null && tmp.equals("1");
                     }
 
                     // callback

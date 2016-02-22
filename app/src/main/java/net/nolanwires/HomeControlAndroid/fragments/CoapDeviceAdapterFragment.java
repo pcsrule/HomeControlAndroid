@@ -2,6 +2,7 @@ package net.nolanwires.HomeControlAndroid.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 
 import org.eclipse.californium.core.CoapClient;
@@ -39,10 +41,9 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Activity activity = this.getActivity();
-        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
-        if (toolbar != null) {
-            toolbar.setTitle(ADAPTER_DETAILS);
+        ActionBar actionBar = ((DeviceDetailActivity)getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(ADAPTER_DETAILS);
         }
 
         discoverControls();

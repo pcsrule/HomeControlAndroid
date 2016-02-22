@@ -3,6 +3,7 @@ package net.nolanwires.HomeControlAndroid.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,17 +15,19 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.deviceadapters.TcpConnectedLightingClient;
 
 /**
  * Created by nolan on 2/18/16.
  */
-public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpConnectedLightingClient.OnLightStatusUpdateListener {
+public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpConnectedLightingClient.OnLightStatusUpdateListener, Runnable {
 
     private static final String ADAPTER_NAME = "Lighting";
     private static final String ADAPTER_DETAILS = "TCP Connected lighting";
     private static final int POLL_DELAY_MS = 2000;
+    private static final int POLL_WHAT = 1337;
 
     private TcpConnectedLightingClient mLightingClient;
     private LightListAdapter mAdapter;
@@ -33,14 +36,19 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Activity activity = this.getActivity();
-        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
-        if (toolbar != null) {
-            toolbar.setTitle(ADAPTER_DETAILS);
+        ActionBar actionBar = ((DeviceDetailActivity)getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(ADAPTER_DETAILS);
         }
 
         mHandler = new Handler();
         mLightingClient = new TcpConnectedLightingClient(getContext(), this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mHandler.removeCallbacks(this);
     }
 
     @Override
@@ -52,16 +60,15 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
         lv.setAdapter(mAdapter);
 
         mLightingClient.getLights();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mLightingClient.getLights();
-                mHandler.postDelayed(this, POLL_DELAY_MS);
-            }
-        }, POLL_DELAY_MS);
-
+        run();
 
         return lv;
+    }
+
+    @Override
+    public void run() {
+        mLightingClient.getLights();
+        mHandler.postDelayed(this, POLL_DELAY_MS);
     }
 
     @Override

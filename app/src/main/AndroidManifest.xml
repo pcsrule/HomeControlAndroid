@@ -31,6 +31,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.nolanwires.HomeControlAndroid.DeviceListActivity" />
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="e5762ac79b240d2e3e1464a225b0a1980eae32a8" />
     </application>
 
 </manifest>
