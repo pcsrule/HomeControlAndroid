@@ -1,5 +1,6 @@
 package net.nolanwires.HomeControlAndroid;
 
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,12 +44,14 @@ public class DeviceListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.setTitle(getTitle());
+        }
 
-        View recyclerView = findViewById(R.id.device_list);
+        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.device_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DeviceAdapterFragment.getAdapters()));
 
         if (findViewById(R.id.device_detail_container) != null) {
             // The detail container view will be present only in the
@@ -59,16 +62,12 @@ public class DeviceListActivity extends AppCompatActivity {
         }
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DeviceContent.ITEMS));
-    }
-
-    public class SimpleItemRecyclerViewAdapter
+    class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<DeviceAdapterFragment> mValues;
+        private final List<Class<? extends DeviceAdapterFragment>> mValues;
 
-        public SimpleItemRecyclerViewAdapter(List<DeviceAdapterFragment> items) {
+        SimpleItemRecyclerViewAdapter(List<Class<? extends DeviceAdapterFragment>> items) {
             mValues = items;
         }
 
@@ -80,16 +79,16 @@ public class DeviceListActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mItem = mValues.get(position);
-            holder.mIdView.setText(holder.mItem.toString());
+            holder.mIdView.setText(DeviceAdapterFragment.getNameForType(holder.mItem));
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mTwoPane) {
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.device_detail_container, holder.mItem)
+                                .replace(R.id.device_detail_container, DeviceAdapterFragment.constructFragmentForIndex(holder.getAdapterPosition(), null))
                                 .commit();
                     } else {
                         Context context = v.getContext();
@@ -107,13 +106,13 @@ public class DeviceListActivity extends AppCompatActivity {
             return mValues.size();
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final TextView mIdView;
-            public final TextView mContentView;
-            public DeviceAdapterFragment mItem;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            final View mView;
+            final TextView mIdView;
+            final TextView mContentView;
+            Class<? extends DeviceAdapterFragment> mItem;
 
-            public ViewHolder(View view) {
+            ViewHolder(View view) {
                 super(view);
                 mView = view;
                 mIdView = (TextView) view.findViewById(R.id.id);

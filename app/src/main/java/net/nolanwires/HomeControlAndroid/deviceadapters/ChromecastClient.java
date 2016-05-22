@@ -114,7 +114,8 @@ public class ChromecastClient extends Thread implements Handler.Callback, Chrome
     }
 
     public void sendAction(int what) {
-        mThreadHandler.sendMessage(mThreadHandler.obtainMessage(what));
+        if (mThreadHandler != null)
+            mThreadHandler.sendMessage(mThreadHandler.obtainMessage(what));
     }
 
     public void quit() {

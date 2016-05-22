@@ -1,9 +1,11 @@
 package net.nolanwires.HomeControlAndroid.fragments;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothClass;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
@@ -24,19 +27,26 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.TcpConnectedLightingClie
  */
 public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpConnectedLightingClient.OnLightStatusUpdateListener, Runnable {
 
-    private static final String ADAPTER_NAME = "Lighting";
-    private static final String ADAPTER_DETAILS = "TCP Connected lighting";
+    // Public adapter attributes
+    public static final String ADAPTER_NAME = "Lighting";
+    public static final String ADAPTER_DETAILS = "TCP Connected lighting";
     private static final int POLL_DELAY_MS = 2000;
-    private static final int POLL_WHAT = 1337;
 
     private TcpConnectedLightingClient mLightingClient;
     private LightListAdapter mAdapter;
     private Handler mHandler;
 
+    // Add this class to the list of devices and the voice command keyword list.
+    static void init() {
+        ADAPTERS.add(TcpHubAdapterFragment.class);
+        ADAPTER_NAMES.put(TcpHubAdapterFragment.class, ADAPTER_NAME);
+        ADAPTER_KEYWORDS.put(TcpHubAdapterFragment.class, new String[]{"light"});
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar actionBar = ((DeviceDetailActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(ADAPTER_DETAILS);
         }
@@ -59,7 +69,6 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
         mAdapter = new LightListAdapter();
         lv.setAdapter(mAdapter);
 
-        mLightingClient.getLights();
         run();
 
         return lv;
@@ -72,22 +81,23 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
     }
 
     @Override
-    public String toString() {
-        return ADAPTER_NAME;
-    }
-
-    @Override
-    public String getDetails() {
-        return ADAPTER_DETAILS;
-    }
-
-    @Override
-    public boolean getEnabled() {
-        return true;
-    }
-
-    @Override
     public void OnLightStatusUpdate() {
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+
+            if (command != null) {
+                TcpConnectedLightingClient.Light l = mLightingClient.getLightForName(command);
+
+                boolean isOn = false;
+                if((command.contains("off") || (isOn = command.contains("on"))) && l != null) {
+                    mLightingClient.setIsLightOn(l.getId(), isOn);
+                } else {
+                    Toast.makeText(getContext(), "What you say?", Toast.LENGTH_LONG).show();
+                }
+            }
+            bundle.clear();
+        }
         mAdapter.notifyDataSetChanged();
     }
 
@@ -143,10 +153,12 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
 
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                }
 
                 @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
@@ -157,7 +169,7 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
             lightSwitch.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mLightingClient.setIsLightOn(mLightingClient.getLightForIndex(position).getId(), ((Switch)v).isChecked());
+                    mLightingClient.setIsLightOn(mLightingClient.getLightForIndex(position).getId(), ((Switch) v).isChecked());
                 }
             });
 

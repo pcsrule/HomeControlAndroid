@@ -3,6 +3,7 @@ package net.nolanwires.HomeControlAndroid.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,9 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
+import net.nolanwires.HomeControlAndroid.deviceadapters.ChromecastClient;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.WebLink;
@@ -25,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,15 +42,31 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
     private static final String URI = "coap://10.11.13.152";
     private Set<WebLink> links;
 
+    // Add this class to the list of devices and the voice command keyword list.
+    static void init() {
+        ADAPTERS.add(CoapDeviceAdapterFragment.class);
+        ADAPTER_NAMES.put(CoapDeviceAdapterFragment.class, ADAPTER_NAME);
+        ADAPTER_KEYWORDS.put(CoapDeviceAdapterFragment.class, new String[]{"led", "strip"});
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar actionBar = ((DeviceDetailActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(ADAPTER_DETAILS);
         }
 
         discoverControls();
+
+        Bundle bundle = this.getArguments();
+        if(bundle != null) {
+            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+
+            //if(command != null) {
+                //Toast.makeText(getContext(), "Not implemented", Toast.LENGTH_LONG).show();
+            //}
+        }
     }
 
     @Override
@@ -110,20 +130,5 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
                 pathList.add(link.toString());
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return ADAPTER_NAME;
-    }
-
-    @Override
-    public String getDetails() {
-        return ADAPTER_DETAILS;
-    }
-
-    @Override
-    public boolean getEnabled() {
-        return true;
     }
 }

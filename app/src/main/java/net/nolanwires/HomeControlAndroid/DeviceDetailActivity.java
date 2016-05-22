@@ -5,12 +5,18 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.actions.NoteIntents;
 
 import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
+
+import java.util.ArrayList;
 
 /**
  * An activity representing a single Device detail screen. This
@@ -21,6 +27,7 @@ import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
 public class DeviceDetailActivity extends AppCompatActivity {
 
     public static final String ARG_ITEM_ID = "device_adapter";
+    public static final String ARG_COMMAND = "command";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,22 +42,43 @@ public class DeviceDetailActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
+        DeviceAdapterFragment adapterFragment = null;
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (action != null && action.compareTo(NoteIntents.ACTION_CREATE_NOTE) == 0) {
+
+            String command = intent.getStringExtra(Intent.EXTRA_TEXT).toLowerCase();
+
+            for (Class<? extends DeviceAdapterFragment> adapter : DeviceAdapterFragment.getAdapters()) {
+                for (String s : DeviceAdapterFragment.getKeywords(adapter)) {
+                    if (command.contains(s.toLowerCase())) {
+                        adapterFragment = DeviceAdapterFragment.newInstance(adapter, command);
+                    }
+                }
+            }
+
+            /* no keyword match found */
+            if (adapterFragment == null) {
+                Toast.makeText(this, "I don't know how to do that", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+
+        } else {
+            adapterFragment = DeviceAdapterFragment.constructFragmentForIndex(intent.getIntExtra(ARG_ITEM_ID, 0), null);
+        }
+
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            DeviceAdapterFragment device = DeviceContent.ITEMS.get(getIntent().getIntExtra(ARG_ITEM_ID, 0));
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.device_detail_container, device)
+                    .add(R.id.device_detail_container, adapterFragment)
+                    .commit();
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.device_detail_container, adapterFragment)
                     .commit();
         }
     }

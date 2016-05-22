@@ -91,6 +91,19 @@ public class TcpConnectedLightingClient {
     }
 
     /**
+     * Get a light by its friendly name.
+     * @param name the name to lookup.
+     * @return the first light found to contain the given String, or null if none are found.
+     */
+    public Light getLightForName(String name) {
+        for(Light l : lights) {
+            if(name.contains(l.name.toLowerCase().split(" ", 2)[0]))
+                return l;
+        }
+        return null;
+    }
+
+    /**
      * Gets a reference to the Light object with the specified ID.
      *
      * @param id The id of the Light to lookup.
