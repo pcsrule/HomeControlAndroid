@@ -1,10 +1,8 @@
 package net.nolanwires.HomeControlAndroid.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
-import net.nolanwires.HomeControlAndroid.deviceadapters.ChromecastClient;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.WebLink;
@@ -28,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,17 +32,9 @@ import java.util.Set;
  */
 public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
 
-    private static final String ADAPTER_NAME = "LED Strip";
     private static final String ADAPTER_DETAILS = "LPD6803 LED Strip";
     private static final String URI = "coap://10.11.13.152";
     private Set<WebLink> links;
-
-    // Add this class to the list of devices and the voice command keyword list.
-    static void init() {
-        ADAPTERS.add(CoapDeviceAdapterFragment.class);
-        ADAPTER_NAMES.put(CoapDeviceAdapterFragment.class, ADAPTER_NAME);
-        ADAPTER_KEYWORDS.put(CoapDeviceAdapterFragment.class, new String[]{"led", "strip"});
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

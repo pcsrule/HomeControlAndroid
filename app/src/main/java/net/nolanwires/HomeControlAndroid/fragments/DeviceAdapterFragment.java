@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by nolan on 2/18/16.
  */
 
-public abstract class DeviceAdapterFragment extends Fragment {
+public class DeviceAdapterFragment extends Fragment {
     private static final String ARG_COMMAND = "arg_command";
     static Map<Class, String[]> ADAPTER_KEYWORDS;
     static Map<Class, String> ADAPTER_NAMES;
@@ -23,10 +23,17 @@ public abstract class DeviceAdapterFragment extends Fragment {
         ADAPTER_KEYWORDS = new HashMap<>();
         ADAPTER_NAMES = new HashMap<>();
 
-        TcpHubAdapterFragment.init();
-        CoapDeviceAdapterFragment.init();
-        LgSmartTvAdapterFragment.init();
-        ChromecastAdapterFragment.init();
+        ADAPTERS.add(TcpHubAdapterFragment.class);
+        ADAPTER_NAMES.put(TcpHubAdapterFragment.class, "Lighting");
+        ADAPTER_KEYWORDS.put(TcpHubAdapterFragment.class, new String[]{"light"});
+
+        ADAPTERS.add(CoapDeviceAdapterFragment.class);
+        ADAPTER_NAMES.put(CoapDeviceAdapterFragment.class, "LED Strip");
+        ADAPTER_KEYWORDS.put(CoapDeviceAdapterFragment.class, new String[]{"led", "strip"});
+
+        ADAPTERS.add(LgSmartTvAdapterFragment.class);
+        ADAPTER_NAMES.put(LgSmartTvAdapterFragment.class, "Projector");
+        ADAPTER_KEYWORDS.put(LgSmartTvAdapterFragment.class, new String[]{"projector"});
 
     }
 
@@ -38,7 +45,7 @@ public abstract class DeviceAdapterFragment extends Fragment {
             args.putString(ARG_COMMAND, command);
 
         try {
-            DeviceAdapterFragment fragment = null;
+            DeviceAdapterFragment fragment;
 
             // Call the "first" constructor in the specified adapter with reflection because Java
             fragment = (DeviceAdapterFragment) adapterClass.getDeclaredConstructors()[0].newInstance();

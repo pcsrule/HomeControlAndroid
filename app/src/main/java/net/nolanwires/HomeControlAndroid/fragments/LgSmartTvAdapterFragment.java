@@ -18,17 +18,9 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient.LG_KEYCO
  * Created by nolan on 2/19/16.
  */
 public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements View.OnClickListener {
-    private static final String ADAPTER_NAME = "Projector";
     private static final String ADAPTER_DETAILS = "LG PA75U Projector";
 
     private LgSmartTvClient mClient;
-
-    // Add this class to the list of devices and the voice command keyword list.
-    static void init() {
-        ADAPTERS.add(LgSmartTvAdapterFragment.class);
-        ADAPTER_NAMES.put(LgSmartTvAdapterFragment.class, ADAPTER_NAME);
-        ADAPTER_KEYWORDS.put(LgSmartTvAdapterFragment.class, new String[]{"projector"});
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

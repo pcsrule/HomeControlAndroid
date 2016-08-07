@@ -1,17 +1,17 @@
 package net.nolanwires.HomeControlAndroid.fragments;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothClass;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -28,20 +28,15 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.TcpConnectedLightingClie
 public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpConnectedLightingClient.OnLightStatusUpdateListener, Runnable {
 
     // Public adapter attributes
-    public static final String ADAPTER_NAME = "Lighting";
     public static final String ADAPTER_DETAILS = "TCP Connected lighting";
     private static final int POLL_DELAY_MS = 2000;
+    private static final String PREFS_KEY_TOKEN = "TCPHUBTOKEN";
 
     private TcpConnectedLightingClient mLightingClient;
     private LightListAdapter mAdapter;
+    private SharedPreferences mPrefs;
     private Handler mHandler;
-
-    // Add this class to the list of devices and the voice command keyword list.
-    static void init() {
-        ADAPTERS.add(TcpHubAdapterFragment.class);
-        ADAPTER_NAMES.put(TcpHubAdapterFragment.class, ADAPTER_NAME);
-        ADAPTER_KEYWORDS.put(TcpHubAdapterFragment.class, new String[]{"light"});
-    }
+    private LinearLayout progressLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +47,7 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
         }
 
         mHandler = new Handler();
-        mLightingClient = new TcpConnectedLightingClient(getContext(), this);
+
     }
 
     @Override
@@ -64,14 +59,23 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ListView lv = new ListView(getContext());
+        // See if we have an auth token
+        mPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String token = mPrefs.getString(PREFS_KEY_TOKEN, null);
+        mLightingClient = new TcpConnectedLightingClient(getContext(), this, token);
 
+        // construct views
+        View v = inflater.inflate(R.layout.tcphub_detail_fragment, container, false);
+        ListView lv = (ListView) v.findViewById(R.id.listView);
         mAdapter = new LightListAdapter();
         lv.setAdapter(mAdapter);
 
+        progressLayout = (LinearLayout) v.findViewById(R.id.progressLayout);
+        progressLayout.setVisibility(token == null ? View.VISIBLE : View.GONE);
+
         run();
 
-        return lv;
+        return v;
     }
 
     @Override
@@ -81,7 +85,12 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
     }
 
     @Override
-    public void OnLightStatusUpdate() {
+    public void OnLightStatusUpdate(String token) {
+        if(progressLayout.getVisibility() == View.VISIBLE) {
+            mPrefs.edit().putString(PREFS_KEY_TOKEN, token).apply();
+            progressLayout.setVisibility(View.GONE);
+        }
+
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);

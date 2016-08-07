@@ -1,6 +1,7 @@
 package net.nolanwires.HomeControlAndroid.deviceadapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -13,12 +14,19 @@ import net.nolanwires.HomeControlAndroid.util.Singleton;
 import net.nolanwires.HomeControlAndroid.util.XMLHelpers;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.UUID;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -34,17 +42,19 @@ import javax.net.ssl.X509TrustManager;
 public class TcpConnectedLightingClient {
     private static final String TAG = TcpConnectedLightingClient.class.getName();
     private final String TCP_HUB_ADDRESS = "lighting";
-    private final String TCP_HUB_TOKEN = "72pplj0qkktntqewyu8e71bzxnjraeam6piwfxd6";
     private final String TCP_HUB_PATH = "https://" + TCP_HUB_ADDRESS + "/gwr/gop.php";
-    private final String TCP_HUB_ROOMGETCAROUSEL_CMD = "cmd=GWRBatch&data=%3Cgwrcmds%3E%3Cgwrcmd%3E%3Cgcmd%3ERoomGetCarousel%3C%2Fgcmd%3E%3Cgdata%3E%3Cgip%3E%3Cversion%3E1%3C%2Fversion%3E%3Ctoken%3E" + TCP_HUB_TOKEN + "%3C%2Ftoken%3E%3Cfields%3Ename%2Ccontrol%2Cproduct%2Cclass%2Crealtype%2Cstatus%3C%2Ffields%3E%3C%2Fgip%3E%3C%2Fgdata%3E%3C%2Fgwrcmd%3E%3C%2Fgwrcmds%3E";
+    private final String TCP_HUB_ROOMGETCAROUSEL_CMD_PREFIX = "cmd=GWRBatch&data=%3Cgwrcmds%3E%3Cgwrcmd%3E%3Cgcmd%3ERoomGetCarousel%3C%2Fgcmd%3E%3Cgdata%3E%3Cgip%3E%3Cversion%3E1%3C%2Fversion%3E%3Ctoken%3E";
+    private final String TCP_HUB_ROOMGETCAROUSEL_CMD_PREFIX_SUFFIX = "%3C%2Ftoken%3E%3Cfields%3Ename%2Ccontrol%2Cproduct%2Cclass%2Crealtype%2Cstatus%3C%2Ffields%3E%3C%2Fgip%3E%3C%2Fgdata%3E%3C%2Fgwrcmd%3E%3C%2Fgwrcmds%3E";
 
     private ArrayList<Light> lights;
     private HashMap<String, Light> lightsMap;
     private OnLightStatusUpdateListener mListener;
     private Context mContext;
+    private String mTCPHubToken;
+    private boolean mSyncInProgress = false;
 
     /**
-     * Essentially a struct to hold data needed to represent
+     * Essentially a struct to hold data needed to represent a Light
      */
     public class Light {
         private String id, name;
@@ -79,15 +89,16 @@ public class TcpConnectedLightingClient {
      * @param context  Application context to find a Volley RequestQueue instance.
      * @param listener Callback interface to notify of light status updates.
      */
-    public TcpConnectedLightingClient(Context context, OnLightStatusUpdateListener listener) {
+    public TcpConnectedLightingClient(Context context, OnLightStatusUpdateListener listener, String token) {
         lights = new ArrayList<>();
         lightsMap = new HashMap<>();
         mContext = context;
         mListener = listener;
+        mTCPHubToken = token;
     }
 
     public interface OnLightStatusUpdateListener {
-        void OnLightStatusUpdate();
+        void OnLightStatusUpdate(String token);
     }
 
     /**
@@ -138,6 +149,10 @@ public class TcpConnectedLightingClient {
      */
     public void getLights() {
 
+        if(mTCPHubToken == null && !mSyncInProgress) {
+            getToken();
+        }
+
         StringRequest GWRBatchRequest = new StringRequest(Request.Method.POST, TCP_HUB_PATH, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -176,7 +191,7 @@ public class TcpConnectedLightingClient {
                     }
 
                     // callback
-                    mListener.OnLightStatusUpdate();
+                    mListener.OnLightStatusUpdate(mTCPHubToken);
                 }
             }
         }, new Response.ErrorListener() {
@@ -187,7 +202,7 @@ public class TcpConnectedLightingClient {
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
-                return TCP_HUB_ROOMGETCAROUSEL_CMD.getBytes();
+                return (TCP_HUB_ROOMGETCAROUSEL_CMD_PREFIX + mTCPHubToken + TCP_HUB_ROOMGETCAROUSEL_CMD_PREFIX_SUFFIX).getBytes();
             }
 
             @Override
@@ -199,6 +214,64 @@ public class TcpConnectedLightingClient {
         Singleton.addRequestToQueue(mContext, GWRBatchRequest);
     }
 
+    private void getToken() {
+        if(mSyncInProgress) {
+            return;
+        }
+        mSyncInProgress = true;
+
+        String guid = UUID.randomUUID().toString();
+        final String GWRLoginCmd = "cmd=GWRLogin&data=<gip><version>1</version><email>"+guid+"</email><password>"+guid+"</password></gip>&fmt=xml";
+
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Document d = XMLHelpers.getDocumentFromString(response);
+
+                if(d != null) {
+                    String token = null;
+                    Node tokenNode = d.getElementsByTagName("token").item(0);
+
+                    if(tokenNode != null) {
+                        token = tokenNode.getTextContent();
+                    }
+
+                    mSyncInProgress = false;
+
+                    if(token != null) {
+                        mTCPHubToken = token;
+                        mListener.OnLightStatusUpdate(mTCPHubToken);
+                    }
+                }
+            }
+        };
+
+        StringRequest setRequest = new StringRequest(Request.Method.POST, TCP_HUB_PATH, responseListener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, error.toString());
+                mSyncInProgress = false;
+            }
+        }) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    Log.d("shit", URLEncoder.encode(GWRLoginCmd, "UTF-8"));
+                    return URLEncoder.encode(GWRLoginCmd, "UTF-8").getBytes();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+        };
+        Singleton.addRequestToQueue(mContext, setRequest);
+    }
+
     /**
      * Turn a TCP light on or off by id.
      *
@@ -207,7 +280,7 @@ public class TcpConnectedLightingClient {
      */
     public void setIsLightOn(final String id, final boolean isOn) {
         String setOnCmd = "cmd=GWRBatch&data=%3Cgwrcmds%3E%3Cgwrcmd%3E%3Cgcmd%3EDeviceSendCommand%3C%2Fgcmd%3E%3Cgdata%3E%3Cgip%3E%3Cversion%3E1%3C%2Fversion%3E%3Ctoken%3E"
-                + TCP_HUB_TOKEN
+                + mTCPHubToken
                 + "%3C%2Ftoken%3E%3Cdid%3E"
                 + id
                 + "%3C%2Fdid%3E%3Cvalue%3E"
@@ -220,7 +293,7 @@ public class TcpConnectedLightingClient {
                 // HTTP 200, don't really need to check the response
                 Light updatedLight = getLightForId(id);
                 updatedLight.isOn = isOn;
-                mListener.OnLightStatusUpdate();
+                mListener.OnLightStatusUpdate(mTCPHubToken);
             }
         };
 
@@ -236,13 +309,13 @@ public class TcpConnectedLightingClient {
      */
     public void setLightBrightness(final String id, final int brightness) {
         String setBrightnessCmd = "cmd=GWRBatch&data=%3Cgwrcmds%3E%3Cgwrcmd%3E%3Cgcmd%3EDeviceSendCommand%3C%2Fgcmd%3E%3Cgdata%3E%3Cgip%3E%3Cversion%3E1%3C%2Fversion%3E%3Ctoken%3E"
-                + TCP_HUB_TOKEN
+                + mTCPHubToken
                 + "%3C%2Ftoken%3E%3Cdid%3E"
                 + id
                 + "%3C%2Fdid%3E%3Cvalue%3E"
                 + brightness
                 + "%3C%2Fvalue%3E%3Ctype%3Elevel%3C%2Ftype%3E%3C%2Fgip%3E%3C%2Fgdata%3E%3C%2Fgwrcmd%3E%3Cgwrcmd%3E%3Cgcmd%3EDeviceSendCommand%3C%2Fgcmd%3E%3Cgdata%3E%3Cgip%3E%3Cversion%3E1%3C%2Fversion%3E%3Ctoken%3E"
-                + TCP_HUB_TOKEN
+                + mTCPHubToken
                 + "%3C%2Ftoken%3E%3Cdid%3E"
                 + id
                 + "%3C%2Fdid%3E%3Cvalue%3E"
@@ -255,7 +328,7 @@ public class TcpConnectedLightingClient {
                 Light updatedLight = getLightForId(id);
                 updatedLight.brightness = brightness;
                 updatedLight.isOn = brightness != 0;
-                mListener.OnLightStatusUpdate();
+                mListener.OnLightStatusUpdate(mTCPHubToken);
             }
         };
 
@@ -267,7 +340,7 @@ public class TcpConnectedLightingClient {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, error.toString());
-                mListener.OnLightStatusUpdate();
+                //mListener.OnLightStatusUpdate();
             }
         }) {
             @Override
