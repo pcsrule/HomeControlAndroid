@@ -39,7 +39,7 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(ADAPTER_DETAILS);
         }
@@ -47,12 +47,9 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
         discoverControls();
 
         Bundle bundle = this.getArguments();
-        if(bundle != null) {
-            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+        if (bundle != null) {
+            String command = bundle.getString(ARG_COMMAND);
 
-            //if(command != null) {
-                //Toast.makeText(getContext(), "Not implemented", Toast.LENGTH_LONG).show();
-            //}
         }
     }
 
@@ -63,8 +60,8 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
         rootView.setColumnCount(3);
         rootView.setRowCount(1);
 
-        // blank page if we can't talk to the device
-        if(links == null)
+        // TODO show an error or keep trying instead of blank page
+        if (links == null)
             return rootView;
 
         for (WebLink link : links) {
@@ -77,12 +74,12 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
 
                     String name = obj.keys().next();
 
-                    LinearLayout endpoint = (LinearLayout)inflater.inflate(R.layout.coap_device_detail, null, false);
+                    LinearLayout endpoint = (LinearLayout) inflater.inflate(R.layout.coap_device_detail, null, false);
 
-                    TextView groupTitleTextView = (TextView)endpoint.findViewById(R.id.textView);
+                    TextView groupTitleTextView = (TextView) endpoint.findViewById(R.id.textView);
                     groupTitleTextView.setText(name);
                     //rootView.addView(groupTitleTextView);
-                    RadioGroup radioGroup = (RadioGroup)endpoint.findViewById(R.id.radioGroup);
+                    RadioGroup radioGroup = (RadioGroup) endpoint.findViewById(R.id.radioGroup);
                     radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -113,7 +110,8 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
     private void discoverControls() {
         CoapClient client = new CoapClient(URI);
         links = client.discover();
-        ArrayList<String> pathList = null;
+        /*
+        ArrayList<String> pathList;
 
         if (links != null) {
             pathList = new ArrayList<>();
@@ -121,5 +119,6 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
                 pathList.add(link.toString());
             }
         }
+        */
     }
 }

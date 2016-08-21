@@ -22,7 +22,6 @@ import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
 public class DeviceDetailActivity extends AppCompatActivity {
 
     public static final String ARG_ITEM_ID = "device_adapter";
-    public static final String ARG_COMMAND = "command";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

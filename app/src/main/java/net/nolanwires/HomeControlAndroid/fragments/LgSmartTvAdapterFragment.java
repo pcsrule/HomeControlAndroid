@@ -14,6 +14,8 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient.LG_KEYCO
 
 /**
  * Created by nolan on 2/19/16.
+ *
+ * UI for interacting with an LgSmartTvClient.
  */
 public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements View.OnClickListener {
     private static final String ADAPTER_DETAILS = "LG PA75U Projector";
@@ -32,7 +34,7 @@ public class LgSmartTvAdapterFragment extends DeviceAdapterFragment implements V
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+            String command = bundle.getString(ARG_COMMAND);
 
             if (command != null) {
                 if (command.contains("off"))

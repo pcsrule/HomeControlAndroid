@@ -10,10 +10,13 @@ import java.util.Map;
 
 /**
  * Created by nolan on 2/18/16.
+ *
+ * Abstract class representing the common functionality and data all Device Adapter UI components
+ * should implement. Also provides static helper functions for managing these fragments.
  */
 
-public class DeviceAdapterFragment extends Fragment {
-    private static final String ARG_COMMAND = "arg_command";
+public abstract class DeviceAdapterFragment extends Fragment {
+    protected static final String ARG_COMMAND = "arg_command";
     static Map<Class, String[]> ADAPTER_KEYWORDS;
     static Map<Class, String> ADAPTER_NAMES;
     static ArrayList<Class<? extends DeviceAdapterFragment>> ADAPTERS;
@@ -37,7 +40,7 @@ public class DeviceAdapterFragment extends Fragment {
 
         ADAPTERS.add(WakeOnLanAdapterFragment.class);
         ADAPTER_NAMES.put(WakeOnLanAdapterFragment.class, "Wake On LAN");
-        ADAPTER_KEYWORDS.put(WakeOnLanAdapterFragment.class, new String[]{"wake up", "computer", "LAN"});
+        ADAPTER_KEYWORDS.put(WakeOnLanAdapterFragment.class, new String[]{"wake up", "computer", "LAN", "turn on"});
 
     }
 

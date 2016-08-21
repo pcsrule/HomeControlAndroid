@@ -27,8 +27,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import net.nolanwires.HomeControlAndroid.R;
+import net.nolanwires.HomeControlAndroid.activities.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.deviceadapters.WakeOnLanClient;
 
 import org.json.JSONArray;
@@ -42,6 +44,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by nolan on 8/16/16.
+ *
+ * UI for interacting with a WakeOnLanClient.
  */
 public class WakeOnLanAdapterFragment extends DeviceAdapterFragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
@@ -103,6 +107,21 @@ public class WakeOnLanAdapterFragment extends DeviceAdapterFragment implements A
 
 
         mArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, mHosts);
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            String command = bundle.getString(ARG_COMMAND);
+            if (command != null) {
+                for (WakeOnLanClient c : mHosts) {
+                    for (String word : c.getDNSName().split("-")) {
+                        if (command.contains(word)) {
+                            c.doRequest();
+                            Toast.makeText(getContext(), "Waking " + c.getDNSName(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -139,7 +158,7 @@ public class WakeOnLanAdapterFragment extends DeviceAdapterFragment implements A
         }
     }
 
-    public void initializeDiscoveryListener() {
+    private void initializeDiscoveryListener() {
         mNsdManager = (NsdManager) getContext().getSystemService(Context.NSD_SERVICE);
         // Instantiate a new DiscoveryListener
         Log.d(TAG, "init service discovery");

@@ -16,6 +16,8 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.ChromecastClient;
 
 /**
  * Created by nolan on 2/21/16.
+ *
+ * UI for interacting with Chromecast API.
  */
 public class ChromecastAdapterFragment extends DeviceAdapterFragment implements View.OnClickListener, Handler.Callback {
     private static final String ADAPTER_NAME = "Chromecast";
@@ -46,7 +48,7 @@ public class ChromecastAdapterFragment extends DeviceAdapterFragment implements 
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+            String command = bundle.getString(ARG_COMMAND);
 
             if (command != null) {
                 if (command.contains("exit"))

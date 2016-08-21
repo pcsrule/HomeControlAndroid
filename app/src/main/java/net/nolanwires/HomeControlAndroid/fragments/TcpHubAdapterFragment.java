@@ -24,6 +24,8 @@ import net.nolanwires.HomeControlAndroid.deviceadapters.TcpConnectedLightingClie
 
 /**
  * Created by nolan on 2/18/16.
+ *
+ * UI for interacting with a TcpConnectedLightingClient
  */
 public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpConnectedLightingClient.OnLightStatusUpdateListener, Runnable {
 
@@ -96,7 +98,7 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            String command = bundle.getString(DeviceDetailActivity.ARG_COMMAND);
+            String command = bundle.getString(ARG_COMMAND);
 
             if (command != null) {
                 TcpConnectedLightingClient.Light l = mLightingClient.getLightForName(command);
