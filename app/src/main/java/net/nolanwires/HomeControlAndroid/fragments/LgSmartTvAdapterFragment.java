@@ -6,11 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
+import net.nolanwires.HomeControlAndroid.activities.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
-import net.nolanwires.HomeControlAndroid.deviceadapters.ChromecastClient;
 import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient;
 import net.nolanwires.HomeControlAndroid.deviceadapters.LgSmartTvClient.LG_KEYCODES;
 

@@ -6,11 +6,15 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
+import java.net.InetAddress;
+
+import javax.jmdns.JmDNS;
+
 /**
  * Created by nolan on 2/18/16.
  */
 public class Singleton {
-    static RequestQueue queue = null;
+    private static RequestQueue queue = null;
 
     public static void addRequestToQueue(Context context, Request request) {
         if(queue == null) {
@@ -18,4 +22,5 @@ public class Singleton {
         }
         queue.add(request);
     }
+
 }

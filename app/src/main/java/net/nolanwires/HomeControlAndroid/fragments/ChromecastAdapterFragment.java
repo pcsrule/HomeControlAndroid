@@ -9,14 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
+import net.nolanwires.HomeControlAndroid.activities.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.deviceadapters.ChromecastClient;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by nolan on 2/21/16.

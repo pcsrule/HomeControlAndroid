@@ -18,7 +18,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
+import net.nolanwires.HomeControlAndroid.activities.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.deviceadapters.TcpConnectedLightingClient;
 
@@ -59,20 +59,22 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // See if we have an auth token
+        // See if we have an auth token and start client
         mPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         String token = mPrefs.getString(PREFS_KEY_TOKEN, null);
         mLightingClient = new TcpConnectedLightingClient(getContext(), this, token);
 
-        // construct views
+        // Construct views
         View v = inflater.inflate(R.layout.tcphub_detail_fragment, container, false);
         ListView lv = (ListView) v.findViewById(R.id.listView);
         mAdapter = new LightListAdapter();
         lv.setAdapter(mAdapter);
 
+        // Display progress indicator if we don't have a saved auth token
         progressLayout = (LinearLayout) v.findViewById(R.id.progressLayout);
         progressLayout.setVisibility(token == null ? View.VISIBLE : View.GONE);
 
+        // Start polling
         run();
 
         return v;
@@ -86,9 +88,10 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
 
     @Override
     public void OnLightStatusUpdate(String token) {
-        if(progressLayout.getVisibility() == View.VISIBLE) {
+        if (token != null && progressLayout.getVisibility() == View.VISIBLE) {
             mPrefs.edit().putString(PREFS_KEY_TOKEN, token).apply();
             progressLayout.setVisibility(View.GONE);
+            return;
         }
 
         Bundle bundle = this.getArguments();
@@ -99,7 +102,7 @@ public class TcpHubAdapterFragment extends DeviceAdapterFragment implements TcpC
                 TcpConnectedLightingClient.Light l = mLightingClient.getLightForName(command);
 
                 boolean isOn = false;
-                if((command.contains("off") || (isOn = command.contains("on"))) && l != null) {
+                if ((command.contains("off") || (isOn = command.contains("on"))) && l != null) {
                     mLightingClient.setIsLightOn(l.getId(), isOn);
                 } else {
                     Toast.makeText(getContext(), "What you say?", Toast.LENGTH_LONG).show();

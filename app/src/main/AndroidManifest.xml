@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.nolanwires.HomeControlAndroid">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -10,10 +12,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <activity
-            android:name="net.nolanwires.HomeControlAndroid.DeviceListActivity"
+            android:name=".activities.DeviceListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -23,22 +23,42 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.nolanwires.HomeControlAndroid.DeviceDetailActivity"
+            android:name=".activities.DeviceDetailActivity"
             android:label="@string/title_device_detail"
-            android:parentActivityName="net.nolanwires.HomeControlAndroid.DeviceListActivity"
+            android:parentActivityName=".activities.DeviceListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="com.google.android.gms.actions.CREATE_NOTE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="*/*"/>
+                <action android:name="com.google.android.gms.actions.CREATE_NOTE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="*/*" />
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="net.nolanwires.HomeControlAndroid.DeviceListActivity" />
+                android:value="net.nolanwires.HomeControlAndroid.activities.DeviceListActivity" />
         </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="e5762ac79b240d2e3e1464a225b0a1980eae32a8" />
+
+        <receiver android:name=".LightingWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/lighting_widget_info" />
+        </receiver>
+
+        <activity android:name=".LightingWidgetConfigureActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

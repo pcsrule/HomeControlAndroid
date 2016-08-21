@@ -1,4 +1,4 @@
-package net.nolanwires.HomeControlAndroid;
+package net.nolanwires.HomeControlAndroid.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 
+import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
 
 import java.util.List;

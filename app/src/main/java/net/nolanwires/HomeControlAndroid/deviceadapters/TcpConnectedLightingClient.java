@@ -103,12 +103,13 @@ public class TcpConnectedLightingClient {
 
     /**
      * Get a light by its friendly name.
+     *
      * @param name the name to lookup.
      * @return the first light found to contain the given String, or null if none are found.
      */
     public Light getLightForName(String name) {
-        for(Light l : lights) {
-            if(name.contains(l.name.toLowerCase().split(" ", 2)[0]))
+        for (Light l : lights) {
+            if (name.contains(l.name.toLowerCase().split(" ", 2)[0]))
                 return l;
         }
         return null;
@@ -149,8 +150,9 @@ public class TcpConnectedLightingClient {
      */
     public void getLights() {
 
-        if(mTCPHubToken == null && !mSyncInProgress) {
+        if (mTCPHubToken == null && !mSyncInProgress) {
             getToken();
+            return;
         }
 
         StringRequest GWRBatchRequest = new StringRequest(Request.Method.POST, TCP_HUB_PATH, new Response.Listener<String>() {
@@ -215,32 +217,33 @@ public class TcpConnectedLightingClient {
     }
 
     private void getToken() {
-        if(mSyncInProgress) {
+        if (mSyncInProgress) {
             return;
         }
         mSyncInProgress = true;
 
         String guid = UUID.randomUUID().toString();
-        final String GWRLoginCmd = "cmd=GWRLogin&data=<gip><version>1</version><email>"+guid+"</email><password>"+guid+"</password></gip>&fmt=xml";
+        final String GWRLoginCmd = "cmd=GWRLogin&data=<gip><version>1</version><email>" + guid + "</email><password>" + guid + "</password></gip>&fmt=xml";
 
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Document d = XMLHelpers.getDocumentFromString(response);
 
-                if(d != null) {
+                if (d != null) {
                     String token = null;
                     Node tokenNode = d.getElementsByTagName("token").item(0);
 
-                    if(tokenNode != null) {
+                    if (tokenNode != null) {
                         token = tokenNode.getTextContent();
                     }
 
                     mSyncInProgress = false;
 
-                    if(token != null) {
+                    if (token != null) {
                         mTCPHubToken = token;
                         mListener.OnLightStatusUpdate(mTCPHubToken);
+                        getLights();
                     }
                 }
             }

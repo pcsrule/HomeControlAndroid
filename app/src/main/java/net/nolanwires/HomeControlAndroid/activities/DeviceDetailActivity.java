@@ -1,4 +1,4 @@
-package net.nolanwires.HomeControlAndroid;
+package net.nolanwires.HomeControlAndroid.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.actions.NoteIntents;
 
+import net.nolanwires.HomeControlAndroid.R;
 import net.nolanwires.HomeControlAndroid.fragments.DeviceAdapterFragment;
 
 /**

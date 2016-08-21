@@ -35,6 +35,10 @@ public class DeviceAdapterFragment extends Fragment {
         ADAPTER_NAMES.put(LgSmartTvAdapterFragment.class, "Projector");
         ADAPTER_KEYWORDS.put(LgSmartTvAdapterFragment.class, new String[]{"projector"});
 
+        ADAPTERS.add(WakeOnLanAdapterFragment.class);
+        ADAPTER_NAMES.put(WakeOnLanAdapterFragment.class, "Wake On LAN");
+        ADAPTER_KEYWORDS.put(WakeOnLanAdapterFragment.class, new String[]{"wake up", "computer", "LAN"});
+
     }
 
     public static DeviceAdapterFragment newInstance(Class adapterClass, String command) {

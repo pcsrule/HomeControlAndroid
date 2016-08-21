@@ -13,7 +13,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import net.nolanwires.HomeControlAndroid.DeviceDetailActivity;
+import net.nolanwires.HomeControlAndroid.activities.DeviceDetailActivity;
 import net.nolanwires.HomeControlAndroid.R;
 
 import org.eclipse.californium.core.CoapClient;
@@ -62,6 +62,10 @@ public class CoapDeviceAdapterFragment extends DeviceAdapterFragment {
         GridLayout rootView = new GridLayout(getContext());
         rootView.setColumnCount(3);
         rootView.setRowCount(1);
+
+        // blank page if we can't talk to the device
+        if(links == null)
+            return rootView;
 
         for (WebLink link : links) {
             Log.d("coap", link.toString());

@@ -2,4 +2,8 @@
     <string name="app_name">Control Panel</string>
     <string name="title_device_detail">Device Detail</string>
     <string name="prompt_tcp_sync">Please press the Sync button on the TCP Hub</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="add">Add</string>
 </resources>
